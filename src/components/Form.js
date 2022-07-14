@@ -1,13 +1,18 @@
 import { useForm } from "react-hook-form";
 
-function Form() {
+function Form({ formSub }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm();
-  const onSubmit = (data) => {};
+  const onSubmit = (data) => {
+    data.id = Date.now();
+    data.fav = false;
+    formSub(data);
+    reset();
+  };
   return (
     <div className="col-sm-4 shadow rounded g-5">
       <h1 className="text-center pt-3 text-secondary h2">Add Contacts</h1>
@@ -45,7 +50,14 @@ function Form() {
           <input
             type="text"
             className="form-control"
-            {...register("phone", { required: "Phone is required" })}
+            {...register("phone", {
+              required: "Phone is Required",
+              pattern: {
+                value:
+                  /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/,
+                message: "Invalid phone no",
+              },
+            })}
           />
           {errors.phone && (
             <small className="text-danger">{errors.phone.message}</small>
