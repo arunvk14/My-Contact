@@ -30,7 +30,9 @@ function App() {
       body: JSON.stringify(data),
     });
     const newdata = await res.json();
-    setContacts([...contacts, newdata]);
+    if (res.ok) {
+      setContacts([...contacts, newdata]);
+    }
   };
   const deleteContact = async (id) => {
     const res = await fetch(`http://localhost:3004/contacts/${id}`, {
@@ -43,14 +45,27 @@ function App() {
       setContacts(newContact);
     }
   };
-  const favToggle = (id) => {
-  const singleCon= await getCon(id)
-    let updatedContact = contacts.map((singleContact) => {
-      return singleContact.id === id
-        ? { ...singleContact, fav: !singleContact.fav }
-        : singleContact;
-    });
-    setContacts(updatedContact);
+  const favToggle = async (id) => {
+    const singleCon = await getCon(id);
+    const updTask = { ...singleCon, fav: !singleCon.fav }
+    const res = await fetch(`http://localhost:3004/contacts/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(updTask)
+    })
+
+    if (res.status === 200) {
+      let updatedContact = contacts.map((singleContact) => {
+        return singleContact.id === id
+          ? { ...singleContact, fav: !singleContact.fav }
+          : singleContact;
+      });
+      setContacts(updatedContact);
+    }
+
+
   };
   const getCon = async (id) => {
     const res = await fetch(`http://localhost:3004/contacts/${id}`);
